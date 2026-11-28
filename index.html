@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samuka - Loja de Variedades</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #eef2f6;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    header {
+      background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+      padding: 12px 14px 15px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topo-interno {
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .acoes-topo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icone {
+      position: relative;
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      text-decoration: none;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-icone:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .badge-carrinho {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 17px;
+      height: 17px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #1e40af;
+    }
+
+    .badge-carrinho.vazio {
+      display: none;
+    }
+
+    #areaAuth {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .usuario-topo {
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-sair-topo {
+      background: rgba(239, 68, 68, 0.9);
+      color: #ffffff;
+      border: none;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-sair-topo:hover {
+      background: #dc2626;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filtros input {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #ffffff;
+      color: #1e293b;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+      outline: none;
+    }
+
+    .filtros input::placeholder {
+      color: #64748b;
+    }
+
+    .filtros select {
+      max-width: 44%;
+      padding: 10px 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #f8fafc;
+      color: #1e293b;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+      outline: none;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 14px auto 32px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid #e2e8f0;
+    }
+
+    .card img {
+      width: 100%;
+      height: 145px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f1f5f9;
+      display: block;
+    }
+
+    .categoria {
+      font-size: 10px;
+      font-weight: 700;
+      color: #2563eb;
+      margin-top: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .nome {
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
+      margin: 4px 0 6px;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .preco {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 4px 0 6px;
+    }
+
+    .estoque {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .em-estoque {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .baixo-estoque {
+      background: #fef9c3;
+      color: #a16207;
+    }
+
+    .esgotado {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .acoes-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-carrinho-add {
+      width: 100%;
+      border: none;
+      background: #1d4ed8;
+      color: #ffffff;
+      padding: 9px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-carrinho-add:hover {
+      background: #1e40af;
+    }
+
+    .btn-desativado {
+      display: block;
+      text-align: center;
+      padding: 9px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #cbd5e1;
+      color: #475569;
+      pointer-events: none;
+    }
+
+    /* Modais Login / Registrar / Nova Senha / Checkout / Meus Pedidos */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+
+    .modal-overlay.aberto {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+      border: 1px solid #e2e8f0;
+    }
+
+    .modal-fechar {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      line-height: 1;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .modal-fechar:hover {
+      color: #0f172a;
+    }
+
+    .modal-titulo {
+      margin: 0 0 14px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 9px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-tab.ativa {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+      color: #ffffff;
+    }
+
+    .form-auth {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .grupo-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .grupo-campo label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .grupo-campo input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .grupo-campo input:focus {
+      border-color: #1d4ed8;
+    }
+
+    .btn-link-auth {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      padding: 0;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .btn-link-auth:hover {
+      color: #1e40af;
+    }
+
+    .auth-msg {
+      margin: 0;
+      font-size: 12px;
+      min-height: 16px;
+      color: #475569;
+    }
+
+    .btn-auth-submit {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-auth-submit:hover {
+      background: #1e40af;
+    }
+
+    /* Checkout estilo Mercado Livre + Pagamento na Hora */
+    .checkout-ml-box {
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .ml-bloco {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .ml-bloco-titulo {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+
+    .ml-resumo-itens {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    .ml-item-linha {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    .ml-select {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #ffffff;
+      color: #0f172a;
+      outline: none;
+    }
+
+    .ml-box-pix {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px dashed #93c5fd;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      color: #1e293b;
+    }
+
+    .ml-pix-linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      word-break: break-all;
+    }
+
+    .btn-copiar-pix {
+      background: #1d4ed8;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-copiar-pix:hover {
+      background: #1e40af;
+    }
+
+    .ml-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .ml-check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 12px;
+      color: #334155;
+      cursor: pointer;
+      line-height: 1.35;
+    }
+
+    .ml-check-label input {
+      margin-top: 2px;
+    }
+
+    .ml-resumo-financeiro {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ml-linha {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .ml-linha.ml-total {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    /* Gaveta do Carrinho */
+    .carrinho-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      display: none;
+      justify-content: flex-end;
+      z-index: 250;
+    }
+
+    .carrinho-overlay.aberto {
+      display: flex;
+    }
+
+    .carrinho-painel {
+      background: #ffffff;
+      width: 100%;
+      max-width: 390px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      box-shadow: -8px 0 28px rgba(15, 23, 42, 0.25);
+    }
+
+    .carrinho-topo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 12px;
+    }
+
+    .carrinho-topo h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .btn-fechar-carrinho {
+      background: none;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .carrinho-itens {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .carrinho-vazio {
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      margin: auto 0;
+      padding: 20px;
+    }
+
+    .item-carrinho {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px;
+      background: #f8fafc;
+    }
+
+    .item-carrinho img {
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .item-carrinho-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-carrinho-nome {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-carrinho-preco {
+      font-size: 12px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .item-carrinho-controles {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn-qtd {
+      width: 24px;
+      height: 24px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qtd-valor {
+      font-size: 13px;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .btn-remover-item {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: #dc2626;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .carrinho-rodape {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .carrinho-total-linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .btn-finalizar-compra {
+      width: 100%;
+      border: none;
+      background: #16a34a;
+      color: #ffffff;
+      padding: 11px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-finalizar-compra:hover:not(:disabled) {
+      background: #15803d;
+    }
+
+    .btn-finalizar-compra:disabled {
+      background: #cbd5e1;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .btn-limpar-carrinho {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    @media (min-width: 640px) {
+      header {
+        padding: 14px 20px 16px;
+      }
+
+      header h1 {
+        font-size: 21px;
+      }
+
+      .btn-icone {
+        width: 34px;
+        height: 34px;
+      }
+
+      .usuario-topo {
+        font-size: 13px;
+        max-width: 180px;
+      }
+
+      .filtros {
+        gap: 12px;
+      }
+
+      .filtros input {
+        padding: 11px 14px;
+        font-size: 15px;
+      }
+
+      .filtros select {
+        max-width: 240px;
+        padding: 11px 12px;
+        font-size: 14px;
+      }
+
+      .container {
+        padding: 0 16px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .card img {
+        height: 175px;
+      }
+
+      .nome {
+        font-size: 14px;
+      }
+
+      .preco {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="topo-interno">
+      <div class="marca">
+        <h1>SAMUKA VARIEDADES</h1>
+        <div class="acoes-topo">
+          <div id="areaAuth">
+            <button type="button"
+                    id="btnAbrirAuth"
+                    class="btn-icone"
+                    aria-label="Conta: Registrar ou Entrar"
+                    title="Registrar ou Entrar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                <polyline points="10 17 15 12 10 7"></polyline>
+                <line x1="15" y1="12" x2="3" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <button type="button"
+                  id="btnAbrirMeusPedidos"
+                  class="btn-icone"
+                  aria-label="Meus pedidos"
+                  title="Meus pedidos">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+          </button>
+
+          <button type="button"
+                  id="btnAbrirCarrinho"
+                  class="btn-icone"
+                  aria-label="Abrir carrinho"
+                  title="Carrinho">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span id="badgeCarrinho" class="badge-carrinho vazio">0</span>
+          </button>
+
+          <a href="https://www.google.com/maps/search/?api=1&query=Manaus+AM"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn-icone"
+             aria-label="Localização da loja"
+             title="Localização da loja">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </a>
+
+          <a href="./admin.html"
+             class="btn-icone"
+             aria-label="Painel administrativo"
+             title="Painel administrativo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="filtros">
+        <input type="text" id="busca" placeholder="Estou buscando...">
+        <select id="filtroCategoria">
+          <option value="">Categorias</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="listaProdutos"></main>
+
+  <!-- Gaveta do Carrinho -->
+  <aside id="carrinhoOverlay" class="carrinho-overlay" aria-label="Carrinho de compras">
+    <div class="carrinho-painel">
+      <div class="carrinho-topo">
+        <h2>Meu Carrinho</h2>
+        <button type="button" id="btnFecharCarrinho" class="btn-fechar-carrinho" aria-label="Fechar carrinho">&times;</button>
+      </div>
+
+      <div id="carrinhoItens" class="carrinho-itens"></div>
+
+      <div class="carrinho-rodape">
+        <div class="carrinho-total-linha">
+          <span>Total</span>
+          <span id="carrinhoTotal">R$ 0,00</span>
+        </div>
+        <button type="button" id="btnFinalizarCarrinho" class="btn-finalizar-compra" disabled>
+          Continuar compra
+        </button>
+        <button type="button" id="btnLimparCarrinho" class="btn-limpar-carrinho">
+          Limpar carrinho
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Modal estilo Mercado Livre: Revisão, Entrega, Previsão e Pagamento na Hora -->
+  <div id="modalCheckoutML" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="tituloCheckoutML">
+    <div class="modal-box checkout-ml-box">
+      <button type="button" id="btnFecharCheckoutML" class="modal-fechar" aria-label="Fechar">&times;</button>
+      <h2 id="tituloCheckoutML" class="modal-titulo">Revisar e pagar na hora</h2>
+
+      <div class="ml-bloco" style="margin-bottom: 12px;">
+        <div class="ml-bloco-titulo">Produtos no pedido</div>
+        <div id="mlResumoItens" class="ml-resumo-itens"></div>
+      </div>
+
+      <form id="formCheckoutML" class="form-auth">
+        <div class="ml-bloco">
+          <label class="ml-bloco-titulo" for="mlTipoEntrega">Entrega ou retirada</label>
+          <select id="mlTipoEntrega" class="ml-select">
+            <option value="Retirada na loja (Manaus - AM)">Retirada na loja (Manaus - AM)</option>
+            <option value="Entrega local (Manaus - AM)">Entrega local (Manaus - AM)</option>
+          </select>
+
+          <div id="mlPrevisaoEntregaTexto" style="margin-top: 8px; font-size: 12px; font-weight: 600; color: #15803d;">
+            Previsão: Retirada disponível hoje (após confirmação do pagamento)
+          </div>
+
+          <div id="mlEnderecoGrupo" class="grupo-campo" style="display: none; margin-top: 8px;">
+            <label for="mlEndereco">Endereço de entrega (rua, número, bairro)</label>
+            <input type="text" id="mlEndereco" placeholder="Ex.: Av. Torquato Tapajós, 123 - Flores">
+          </div>
+        </div>
+
+        <div class="ml-bloco">
+          <label class="ml-bloco-titulo" for="mlPagamento">Forma de pagamento (na hora da compra)</label>
+          <select id="mlPagamento" class="ml-select">
+            <option value="Pix na hora">Pix na hora</option>
+            <option value="Cartão na hora">Cartão na hora</option>
+          </select>
+
+          <!-- Pagamento Pix na hora -->
+          <div id="mlPixGrupo" class="ml-box-pix" style="display: flex;">
+            <div class="ml-pix-linha">
+              <span>Chave Pix: <strong id="mlChavePixTexto">92995074051</strong></span>
+              <button type="button" id="btnCopiarPix" class="btn-copiar-pix">Copiar Pix</button>
+            </div>
+            <label class="ml-check-label">
+              <input type="checkbox" id="mlConfirmouPix">
+              <span>Confirmo que realizei o pagamento via Pix agora.</span>
+            </label>
+          </div>
+
+          <!-- Pagamento Cartão na hora -->
+          <div id="mlCartaoGrupo" class="ml-box-pix" style="display: none;">
+            <div class="grupo-campo">
+              <label for="mlCartaoNome">Nome impresso no cartão</label>
+              <input type="text" id="mlCartaoNome" placeholder="Ex.: JHONES S FERNANDES">
+            </div>
+            <div class="grupo-campo">
+              <label for="mlCartaoNumero">Número do cartão</label>
+              <input type="text" id="mlCartaoNumero" inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000">
+            </div>
+            <div class="ml-grid-2">
+              <div class="grupo-campo">
+                <label for="mlCartaoValidade">Validade (MM/AA)</label>
+                <input type="text" id="mlCartaoValidade" maxlength="5" placeholder="12/28">
+              </div>
+              <div class="grupo-campo">
+                <label for="mlCartaoCvv">CVV</label>
+                <input type="password" id="mlCartaoCvv" inputmode="numeric" maxlength="4" placeholder="123">
+              </div>
+            </div>
+            <label class="ml-check-label">
+              <input type="checkbox" id="mlConfirmouCartao">
+              <span>Autorizo o pagamento no cartão agora.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="mlNomeCliente">Seu nome</label>
+          <input type="text" id="mlNomeCliente" placeholder="Nome para identificação" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="mlObservacao">Observação (opcional)</label>
+          <input type="text" id="mlObservacao" placeholder="Ex.: cor, horário ou ponto de referência">
+        </div>
+
+        <div class="ml-bloco" style="background: #eff6ff; border-color: #bfdbfe;">
+          <div class="ml-bloco-titulo" style="color: #1e40af; margin-bottom: 4px;">Regra de entrega</div>
+          <p style="margin: 0; font-size: 12px; color: #1e3a8a; line-height: 1.4;">
+            A separação e a entrega do pedido só ocorrem <strong>após a confirmação do pagamento</strong>. Você pode acompanhar seu pedido no ícone de pacote no topo da loja.
+          </p>
+        </div>
+
+        <div class="ml-resumo-financeiro">
+          <div class="ml-linha">
+            <span>Quantidade de itens</span>
+            <strong id="mlQtdItens">0</strong>
+          </div>
+          <div class="ml-linha ml-total">
+            <span>Total a pagar</span>
+            <strong id="mlTotalValor">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <p id="mlMensagemPedido" class="auth-msg"></p>
+
+        <button type="submit" id="btnConfirmarPedido" class="btn-finalizar-compra">Finalizar pagamento e pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Meus Pedidos do Cliente -->
+  <div id="modalMeusPedidos" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="tituloMeusPedidos">
+    <div class="modal-box checkout-ml-box">
+      <button type="button" id="btnFecharMeusPedidos" class="modal-fechar" aria-label="Fechar">&times;</button>
+      <h2 id="tituloMeusPedidos" class="modal-titulo">Meus Pedidos</h2>
+
+      <form id="formBuscarPedidoPorId" style="display: flex; gap: 6px; margin-bottom: 12px;">
+        <input type="text"
+               id="inputBuscaPedidoId"
+               inputmode="numeric"
+               placeholder="Buscar nº do pedido (ex.: 15)"
+               style="flex: 1; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none;">
+        <button type="submit"
+                style="background: #1d4ed8; color: #ffffff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer;">
+          Buscar
+        </button>
+        <button type="button"
+                id="btnLimparBuscaPedidoId"
+                title="Mostrar todos os meus pedidos"
+                style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; font-size: 12px; font-weight: 600; cursor: pointer; display: none;">
+          Todos
+        </button>
+      </form>
+
+      <div id="listaMeusPedidos" style="display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- Modal Login / Registrar -->
+  <div id="modalAuth" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="tabLogin">
+    <div class="modal-box">
+      <button type="button" id="btnFecharAuth" class="modal-fechar" aria-label="Fechar">&times;</button>
+
+      <div class="auth-tabs">
+        <button type="button" id="tabLogin" class="auth-tab">Login</button>
+        <button type="button" id="tabRegistro" class="auth-tab ativa">Registrar</button>
+      </div>
+
+      <form id="formAuth" class="form-auth">
+        <div id="campoNomeGrupo" class="grupo-campo">
+          <label for="authNome">Nome</label>
+          <input type="text" id="authNome" placeholder="Seu nome" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="authEmail">E-mail</label>
+          <input type="email" id="authEmail" placeholder="seu@email.com" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="authSenha">Senha</label>
+          <input type="password" id="authSenha" placeholder="Mínimo 6 caracteres" minlength="6" required>
+        </div>
+
+        <button type="button" id="btnEsqueciSenha" class="btn-link-auth" style="display: none;">Esqueceu sua senha?</button>
+
+        <p id="authMensagem" class="auth-msg"></p>
+
+        <button type="submit" id="btnSubmitAuth" class="btn-auth-submit">Criar Conta</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Nova Senha -->
+  <div id="modalNovaSenha" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="tituloNovaSenha">
+    <div class="modal-box">
+      <button type="button" id="btnFecharNovaSenha" class="modal-fechar" aria-label="Fechar">&times;</button>
+      <h2 id="tituloNovaSenha" class="modal-titulo">Definir nova senha</h2>
+
+      <form id="formNovaSenha" class="form-auth">
+        <div class="grupo-campo">
+          <label for="novaSenha">Nova senha</label>
+          <input type="password" id="novaSenha" placeholder="Mínimo 6 caracteres" minlength="6" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="confirmarNovaSenha">Confirmar nova senha</label>
+          <input type="password" id="confirmarNovaSenha" placeholder="Repita a nova senha" minlength="6" required>
+        </div>
+
+        <p id="novaSenhaMensagem" class="auth-msg"></p>
+
+        <button type="submit" id="btnSalvarNovaSenha" class="btn-auth-submit">Salvar nova senha</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Samuka Variedades</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .topo-admin {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .topo-admin h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .topo-acoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-topo {
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-topo:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 20px auto;
+      padding: 0 16px 40px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      margin-bottom: 16px;
+    }
+
+    .login-box {
+      max-width: 420px;
+      margin: 40px auto;
+    }
+
+    .login-box h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .login-box p {
+      margin: 0 0 16px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .campo {
+      margin-bottom: 12px;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 4px;
+    }
+
+    .campo input,
+    .campo select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .btn-primario {
+      width: 100%;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primario:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-primario:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .erro-texto {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+
+    .abas-painel {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .btn-aba {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      padding: 9px 14px;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-aba.ativa {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+
+    .filtros {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 640px) {
+      .filtros {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .filtros input,
+    .filtros select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .resumo-topo-acoes {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .resumo-topo-acoes h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .resumo-controles-direita {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .resumo-controles-direita select {
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .btn-csv {
+      border: none;
+      background: #0f766e;
+      color: #ffffff;
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-csv:hover {
+      background: #115e59;
+    }
+
+    .resumo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .resumo-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .resumo-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .resumo-valor {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .resumo-sub {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .lista-resumo-detalhada {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item-resumo-detalhe {
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .item-resumo-topo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .item-resumo-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .item-resumo-direita {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .item-resumo-valor {
+      font-size: 14px;
+      font-weight: 800;
+      color: #15803d;
+    }
+
+    .item-resumo-meta {
+      font-size: 12px;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+
+    .item-resumo-itens {
+      font-size: 12px;
+      color: #334155;
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .badge-canal-online {
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-canal-fisica {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .venda-fisica-grid {
+      display: grid;
+      grid-template-columns: 1fr 120px auto;
+      gap: 10px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 720px) {
+      .venda-fisica-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn-adicionar-item {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      height: 40px;
+    }
+
+    .btn-adicionar-item:hover {
+      background: #1e293b;
+    }
+
+    .itens-venda-fisica-lista {
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .item-venda-fisica-linha {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .btn-remover-linha-fisica {
+      border: none;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .venda-fisica-rodape {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .troco-box-admin {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .troco-resultado-valor {
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #ffffff;
+      border: 1px solid #86efac;
+      font-size: 14px;
+      font-weight: 800;
+      color: #15803d;
+      display: flex;
+      align-items: center;
+      min-height: 40px;
+    }
+
+    .troco-resultado-valor.insuficiente {
+      color: #b91c1c;
+      border-color: #fca5a5;
+      background: #fef2f2;
+    }
+
+    .total-venda-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .pedido-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #ffffff;
+    }
+
+    .pedido-topo {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .pedido-id {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-status.entregue {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-status.cancelado {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .pedido-detalhes {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .pedido-itens {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .controles-atualizacao {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    @media (max-width: 720px) {
+      .controles-atualizacao {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .controles-atualizacao label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .controles-atualizacao select,
+    .controles-atualizacao input {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    .btn-salvar {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #16a34a;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      height: 38px;
+    }
+
+    .btn-salvar:hover {
+      background: #15803d;
+    }
+
+    .btn-excluir {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      height: 38px;
+    }
+
+    .btn-excluir:hover {
+      background: #b91c1c;
+    }
+
+    .msg-feedback {
+      font-size: 12px;
+      margin-top: 8px;
+      min-height: 16px;
+      font-weight: 600;
+    }
+
+    .grid-novo-produto {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .produtos-admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 12px;
+    }
+
+    .produto-admin-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .produto-topo {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .produto-topo img {
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #f1f5f9;
+      flex-shrink: 0;
+    }
+
+    .produto-editar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .produto-editar-grid label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 3px;
+    }
+
+    .produto-editar-grid input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .acoes-produto {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .acoes-produto .btn-salvar {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <header class="topo-admin">
+    <h1>Painel Administrativo • Samuka Variedades</h1>
+    <div class="topo-acoes">
+      <button type="button" id="btnAtualizarLista" class="btn-topo" style="display: none;">Atualizar</button>
+      <button type="button" id="btnSairAdmin" class="btn-topo" style="display: none;">Sair</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="secaoLoginAdmin" class="card login-box">
+      <h2>Entrar no Painel</h2>
+      <p>Use seu e-mail e senha de administrador cadastrados no Supabase.</p>
+      <form id="formLoginAdmin">
+        <div class="campo">
+          <label for="adminEmail">E-mail</label>
+          <input type="email" id="adminEmail" required autocomplete="username">
+        </div>
+        <div class="campo">
+          <label for="adminSenha">Senha</label>
+          <input type="password" id="adminSenha" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-primario">Entrar</button>
+        <div id="adminLoginMsg" class="erro-texto"></div>
+      </form>
+    </section>
+
+    <section id="secaoPainelLogado" style="display: none;">
+      <div class="abas-painel">
+        <button type="button" id="abaPedidos" class="btn-aba ativa">Pedidos</button>
+        <button type="button" id="abaRegistrarVenda" class="btn-aba">Registrar Venda</button>
+        <button type="button" id="abaResumo" class="btn-aba">Resumo</button>
+        <button type="button" id="abaProdutos" class="btn-aba">Produtos</button>
+      </div>
+
+      <div id="secaoPedidosAdmin" class="card">
+        <div class="filtros">
+          <input type="search" id="filtroBuscaPedido" placeholder="Buscar por cliente, endereço, entrega ou #ID...">
+          <select id="filtroStatusPedido">
+            <option value="">Todos os status</option>
+            <option value="aguardando_pagamento">Aguardando pagamento</option>
+            <option value="pago">Pago</option>
+            <option value="separando">Separando pedido</option>
+            <option value="entregue">Entregue</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div id="listaPedidosAdmin"></div>
+      </div>
+
+      <div id="secaoRegistrarVendaAdmin" class="card" style="display: none;">
+        <h2 style="margin: 0 0 6px; font-size: 17px;">Registrar Venda Física (Balcão)</h2>
+        <p style="margin: 0 0 14px; color: #475569; font-size: 13px;">
+          Salva exclusivamente na tabela <strong>vendas</strong> do Supabase e entra no <strong>Resumo</strong> sem aparecer na aba <strong>Pedidos</strong>.
+        </p>
+
+        <form id="formVendaFisica">
+          <div class="venda-fisica-grid">
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaProduto">Produto</label>
+              <select id="vendaFisicaProduto"></select>
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaQtd">Quantidade</label>
+              <input type="number" id="vendaFisicaQtd" min="1" step="1" value="1">
+            </div>
+            <button type="button" id="btnAddItemVendaFisica" class="btn-adicionar-item">+ Adicionar</button>
+          </div>
+
+          <div id="listaItensVendaFisica" class="itens-venda-fisica-lista"></div>
+
+          <div class="venda-fisica-rodape">
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaData">Data e hora da venda</label>
+              <input type="datetime-local" id="vendaFisicaData">
+            </div>
+
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaPagamento">Forma de pagamento</label>
+              <select id="vendaFisicaPagamento">
+                <option value="Pix na loja">Pix na loja</option>
+                <option value="Dinheiro na loja">Dinheiro na loja</option>
+                <option value="Cartão débito na loja">Cartão débito na loja</option>
+                <option value="Cartão crédito na loja">Cartão crédito na loja</option>
+              </select>
+            </div>
+
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaCliente">Cliente (opcional)</label>
+              <input type="text" id="vendaFisicaCliente" placeholder="Ex.: Cliente balcão">
+            </div>
+          </div>
+
+          <div id="boxTrocoFisico" class="troco-box-admin">
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="vendaFisicaValorRecebido">Valor recebido em dinheiro (R$)</label>
+              <input type="number" id="vendaFisicaValorRecebido" step="0.01" min="0" placeholder="Ex.: 100.00">
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label>Troco a devolver</label>
+              <div id="vendaFisicaTrocoResultado" class="troco-resultado-valor">Informe o valor recebido</div>
+            </div>
+          </div>
+
+          <div class="total-venda-box">
+            <span>Total da venda:</span>
+            <span id="totalVendaFisicaTexto">R$ 0,00</span>
+          </div>
+
+          <button type="submit" id="btnRegistrarVendaFisica" class="btn-primario">Registrar venda</button>
+          <div id="msgVendaFisica" class="msg-feedback"></div>
+        </form>
+      </div>
+
+      <div id="secaoResumoAdmin" class="card" style="display: none;">
+        <div class="resumo-topo-acoes">
+          <h2>Resumo de Vendas (Pedidos + Vendas Físicas)</h2>
+          <div class="resumo-controles-direita">
+            <select id="filtroPeriodoResumo" aria-label="Período do resumo">
+              <option value="mes_atual" selected>Mês atual</option>
+              <option value="hoje">Hoje</option>
+              <option value="todos">Todos</option>
+            </select>
+            <button type="button" id="btnExportarCsv" class="btn-csv">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div class="resumo-grid">
+          <div class="resumo-box">
+            <div class="resumo-label">Total Geral Confirmado</div>
+            <div id="resumoTotalVendas" class="resumo-valor">R$ 0,00</div>
+            <div id="resumoDetalheVendas" class="resumo-sub">0 vendas confirmadas</div>
+          </div>
+
+          <div class="resumo-box">
+            <div class="resumo-label">Vendas Confirmadas</div>
+            <div id="resumoQtdPagosEntregues" class="resumo-valor">0</div>
+            <div id="resumoQtdEntregues" class="resumo-sub">0 entregues</div>
+          </div>
+
+          <div class="resumo-box">
+            <div class="resumo-label">Vendas Online (pedidos)</div>
+            <div id="resumoTotalOnline" class="resumo-valor">R$ 0,00</div>
+            <div id="resumoQtdOnline" class="resumo-sub">0 pedidos</div>
+          </div>
+
+          <div class="resumo-box">
+            <div class="resumo-label">Vendas Físicas (vendas)</div>
+            <div id="resumoTotalFisica" class="resumo-valor">R$ 0,00</div>
+            <div id="resumoQtdFisica" class="resumo-sub">0 vendas</div>
+          </div>
+        </div>
+
+        <h3 style="margin: 0 0 10px; font-size: 15px;">Detalhamento das Vendas Confirmadas</h3>
+        <div id="listaDetalhadaResumo" class="lista-resumo-detalhada"></div>
+      </div>
+
+      <div id="secaoProdutosAdmin" class="card" style="display: none;">
+        <h2 style="margin: 0 0 12px; font-size: 17px;">Cadastrar Novo Produto</h2>
+        <form id="formNovoProduto">
+          <div class="grid-novo-produto">
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="novoProdNome">Nome do produto</label>
+              <input type="text" id="novoProdNome" required placeholder="Ex.: Capinha Moto G">
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="novoProdCategoria">Categoria</label>
+              <input type="text" id="novoProdCategoria" placeholder="Ex.: Acessórios">
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="novoProdPreco">Preço (R$)</label>
+              <input type="number" id="novoProdPreco" step="0.01" min="0" required placeholder="25.00">
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="novoProdQtd">Quantidade</label>
+              <input type="number" id="novoProdQtd" step="1" min="0" required value="10">
+            </div>
+            <div class="campo" style="margin-bottom: 0;">
+              <label for="novoProdImagem">URL da imagem (opcional)</label>
+              <input type="url" id="novoProdImagem" placeholder="https://...">
+            </div>
+          </div>
+          <button type="submit" id="btnSalvarNovoProduto" class="btn-primario">Cadastrar</button>
+          <div id="msgNovoProduto" class="msg-feedback"></div>
+        </form>
+
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+
+        <div class="filtros" style="grid-template-columns: 1fr;">
+          <input type="search" id="filtroBuscaProduto" placeholder="Buscar produto cadastrado por nome, categoria ou ID...">
+        </div>
+        <div id="listaProdutosAdmin" class="produtos-admin-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://zsphytpvqbowyqvisjzx.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_tFR5sNN1aFgHNiVV7z6Vrw_a45uts6m";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const secaoLoginAdmin = document.getElementById("secaoLoginAdmin");
+    const secaoPainelLogado = document.getElementById("secaoPainelLogado");
+
+    const abaPedidos = document.getElementById("abaPedidos");
+    const abaRegistrarVenda = document.getElementById("abaRegistrarVenda");
+    const abaResumo = document.getElementById("abaResumo");
+    const abaProdutos = document.getElementById("abaProdutos");
+
+    const secaoPedidosAdmin = document.getElementById("secaoPedidosAdmin");
+    const secaoRegistrarVendaAdmin = document.getElementById("secaoRegistrarVendaAdmin");
+    const secaoResumoAdmin = document.getElementById("secaoResumoAdmin");
+    const secaoProdutosAdmin = document.getElementById("secaoProdutosAdmin");
+
+    const formLoginAdmin = document.getElementById("formLoginAdmin");
+    const adminEmail = document.getElementById("adminEmail");
+    const adminSenha = document.getElementById("adminSenha");
+    const adminLoginMsg = document.getElementById("adminLoginMsg");
+    const btnAtualizarLista = document.getElementById("btnAtualizarLista");
+    const btnSairAdmin = document.getElementById("btnSairAdmin");
+
+    // Pedidos
+    const filtroBuscaPedido = document.getElementById("filtroBuscaPedido");
+    const filtroStatusPedido = document.getElementById("filtroStatusPedido");
+    const listaPedidosAdmin = document.getElementById("listaPedidosAdmin");
+
+    // Registrar Venda (Salva apenas na tabela vendas)
+    const formVendaFisica = document.getElementById("formVendaFisica");
+    const vendaFisicaProduto = document.getElementById("vendaFisicaProduto");
+    const vendaFisicaQtd = document.getElementById("vendaFisicaQtd");
+    const btnAddItemVendaFisica = document.getElementById("btnAddItemVendaFisica");
+    const listaItensVendaFisica = document.getElementById("listaItensVendaFisica");
+    const vendaFisicaData = document.getElementById("vendaFisicaData");
+    const totalVendaFisicaTexto = document.getElementById("totalVendaFisicaTexto");
+    const vendaFisicaPagamento = document.getElementById("vendaFisicaPagamento");
+    const vendaFisicaCliente = document.getElementById("vendaFisicaCliente");
+    const btnRegistrarVendaFisica = document.getElementById("btnRegistrarVendaFisica");
+    const boxTrocoFisico = document.getElementById("boxTrocoFisico");
+    const vendaFisicaValorRecebido = document.getElementById("vendaFisicaValorRecebido");
+    const vendaFisicaTrocoResultado = document.getElementById("vendaFisicaTrocoResultado");
+    const msgVendaFisica = document.getElementById("msgVendaFisica");
+
+    // Resumo Geral, Lista Detalhada e CSV
+    const filtroPeriodoResumo = document.getElementById("filtroPeriodoResumo");
+    const resumoTotalVendas = document.getElementById("resumoTotalVendas");
+    const resumoDetalheVendas = document.getElementById("resumoDetalheVendas");
+    const resumoQtdPagosEntregues = document.getElementById("resumoQtdPagosEntregues");
+    const resumoQtdEntregues = document.getElementById("resumoQtdEntregues");
+    const resumoTotalOnline = document.getElementById("resumoTotalOnline");
+    const resumoQtdOnline = document.getElementById("resumoQtdOnline");
+    const resumoTotalFisica = document.getElementById("resumoTotalFisica");
+    const resumoQtdFisica = document.getElementById("resumoQtdFisica");
+    const listaDetalhadaResumo = document.getElementById("listaDetalhadaResumo");
+    const btnExportarCsv = document.getElementById("btnExportarCsv");
+
+    // Produtos
+    const formNovoProduto = document.getElementById("formNovoProduto");
+    const novoProdNome = document.getElementById("novoProdNome");
+    const novoProdCategoria = document.getElementById("novoProdCategoria");
+    const novoProdPreco = document.getElementById("novoProdPreco");
+    const novoProdQtd = document.getElementById("novoProdQtd");
+    const novoProdImagem = document.getElementById("novoProdImagem");
+    const btnSalvarNovoProduto = document.getElementById("btnSalvarNovoProduto");
+    const msgNovoProduto = document.getElementById("msgNovoProduto");
+    const filtroBuscaProduto = document.getElementById("filtroBuscaProduto");
+    const listaProdutosAdmin = document.getElementById("listaProdutosAdmin");
+
+    let abaAtiva = "pedidos";
+    let pedidosCache = [];
+    let vendasCache = [];
+    let produtosCache = [];
+    let itensVendaFisica = [];
+
+    function escaparHtml(texto) {
+      return String(texto ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatarPreco(valor) {
+      return (Number(valor) || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function rotuloStatus(status) {
+      const mapa = {
+        aguardando_pagamento: "Aguardando pagamento",
+        pago: "Pago",
+        separando: "Separando pedido",
+        entregue: "Entregue",
+        cancelado: "Cancelado"
+      };
+      return mapa[status] || status || "Pago";
+    }
+
+    function preencherDataHoraPadraoVenda() {
+      if (!vendaFisicaData) return;
+      const agora = new Date();
+      const offsetMs = agora.getTimezoneOffset() * 60000;
+      const localIso = new Date(agora.getTime() - offsetMs).toISOString().slice(0, 16);
+      vendaFisicaData.value = localIso;
+    }
+
+    function alternarAba(aba) {
+      abaAtiva = aba;
+      abaPedidos.classList.toggle("ativa", aba === "pedidos");
+      abaRegistrarVenda.classList.toggle("ativa", aba === "venda");
+      abaResumo.classList.toggle("ativa", aba === "resumo");
+      abaProdutos.classList.toggle("ativa", aba === "produtos");
+
+      secaoPedidosAdmin.style.display = aba === "pedidos" ? "block" : "none";
+      secaoRegistrarVendaAdmin.style.display = aba === "venda" ? "block" : "none";
+      secaoResumoAdmin.style.display = aba === "resumo" ? "block" : "none";
+      secaoProdutosAdmin.style.display = aba === "produtos" ? "block" : "none";
+
+      if (aba === "pedidos" || aba === "resumo") {
+        carregarPedidosEVendas();
+      } else if (aba === "venda") {
+        preencherDataHoraPadraoVenda();
+        carregarProdutosBase();
+      } else {
+        carregarProdutosAdmin();
+      }
+    }
+
+    // ==========================================
+    // REGISTRAR VENDA (SALVA APENAS NA TABELA vendas)
+    // ==========================================
+    function popularSelectVendaFisica() {
+      if (!vendaFisicaProduto) return;
+      const selecionadoAnterior = vendaFisicaProduto.value;
+
+      if (!produtosCache || produtosCache.length === 0) {
+        vendaFisicaProduto.innerHTML = `<option value="">Nenhum produto cadastrado</option>`;
+        return;
+      }
+
+      vendaFisicaProduto.innerHTML =
+        `<option value="">Selecione um produto...</option>` +
+        produtosCache
+          .map((p) => {
+            const qtd = Number(p.quantidade) || 0;
+            const precoFmt = formatarPreco(p.preco);
+            return `<option value="${escaparHtml(p.id)}">${escaparHtml(p.nome)} — ${precoFmt} (Estoque: ${qtd})</option>`;
+          })
+          .join("");
+
+      if (produtosCache.some((p) => String(p.id) === String(selecionadoAnterior))) {
+        vendaFisicaProduto.value = selecionadoAnterior;
+      }
+    }
+
+    function obterTotalVendaFisicaAtual() {
+      return Number(
+        itensVendaFisica
+          .reduce((acc, item) => acc + (Number(item.preco) || 0) * (Number(item.qtd) || 0), 0)
+          .toFixed(2)
+      );
+    }
+
+    function atualizarTrocoVendaFisica() {
+      const metodo = vendaFisicaPagamento?.value || "Pix na loja";
+      const ehDinheiro = metodo === "Dinheiro na loja";
+
+      if (boxTrocoFisico) {
+        boxTrocoFisico.style.display = ehDinheiro ? "grid" : "none";
+      }
+
+      if (!ehDinheiro || !vendaFisicaTrocoResultado) return;
+
+      const total = obterTotalVendaFisicaAtual();
+      const recebido = Number(vendaFisicaValorRecebido?.value);
+
+      if (!vendaFisicaValorRecebido?.value || Number.isNaN(recebido)) {
+        vendaFisicaTrocoResultado.classList.remove("insuficiente");
+        vendaFisicaTrocoResultado.textContent = "Informe o valor recebido";
+        return;
+      }
+
+      const diferenca = Number((recebido - total).toFixed(2));
+      if (diferenca < 0) {
+        vendaFisicaTrocoResultado.classList.add("insuficiente");
+        vendaFisicaTrocoResultado.textContent = `Faltam ${formatarPreco(Math.abs(diferenca))}`;
+      } else {
+        vendaFisicaTrocoResultado.classList.remove("insuficiente");
+        vendaFisicaTrocoResultado.textContent = formatarPreco(diferenca);
+      }
+    }
+
+    function renderizarItensVendaFisica() {
+      if (!listaItensVendaFisica || !totalVendaFisicaTexto) return;
+
+      const total = obterTotalVendaFisicaAtual();
+      totalVendaFisicaTexto.textContent = formatarPreco(total);
+
+      if (itensVendaFisica.length === 0) {
+        listaItensVendaFisica.innerHTML = `<div style="color: #64748b; font-size: 12px; text-align: center; padding: 4px;">Nenhum item adicionado à venda ainda.</div>`;
+      } else {
+        listaItensVendaFisica.innerHTML = itensVendaFisica
+          .map((item, idx) => {
+            const subtotal = (Number(item.preco) || 0) * (Number(item.qtd) || 0);
+            return `
+              <div class="item-venda-fisica-linha">
+                <span><strong>${Number(item.qtd)}x</strong> ${escaparHtml(item.nome)} — ${formatarPreco(subtotal)}</span>
+                <button type="button" class="btn-remover-linha-fisica" data-idx="${idx}">Remover</button>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      atualizarTrocoVendaFisica();
+    }
+
+    btnAddItemVendaFisica?.addEventListener("click", () => {
+      if (!msgVendaFisica) return;
+      msgVendaFisica.textContent = "";
+
+      const produtoId = vendaFisicaProduto?.value;
+      const qtd = Math.max(1, parseInt(vendaFisicaQtd?.value, 10) || 1);
+      const produto = produtosCache.find((p) => String(p.id) === String(produtoId));
+
+      if (!produto) {
+        msgVendaFisica.style.color = "#b91c1c";
+        msgVendaFisica.textContent = "Selecione um produto para adicionar.";
+        return;
+      }
+
+      const estoqueAtual = Number(produto.quantidade) || 0;
+      const jaNaLista = itensVendaFisica.find((i) => String(i.id) === String(produto.id));
+      const qtdTotalDesejada = (jaNaLista ? jaNaLista.qtd : 0) + qtd;
+
+      if (estoqueAtual < qtdTotalDesejada) {
+        msgVendaFisica.style.color = "#b91c1c";
+        msgVendaFisica.textContent = `Estoque insuficiente para ${produto.nome} (${estoqueAtual} un. disponíveis).`;
+        return;
+      }
+
+      if (jaNaLista) {
+        jaNaLista.qtd += qtd;
+        jaNaLista.preco = Number(produto.preco) || 0;
+      } else {
+        itensVendaFisica.push({
+          id: produto.id,
+          nome: produto.nome,
+          preco: Number(produto.preco) || 0,
+          qtd
+        });
+      }
+
+      if (vendaFisicaQtd) vendaFisicaQtd.value = "1";
+      renderizarItensVendaFisica();
+    });
+
+    listaItensVendaFisica?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-remover-linha-fisica");
+      if (!btn) return;
+      const idx = Number(btn.dataset.idx);
+      if (!Number.isNaN(idx) && idx >= 0 && idx < itensVendaFisica.length) {
+        itensVendaFisica.splice(idx, 1);
+        renderizarItensVendaFisica();
+      }
+    });
+
+    vendaFisicaPagamento?.addEventListener("change", atualizarTrocoVendaFisica);
+    vendaFisicaValorRecebido?.addEventListener("input", atualizarTrocoVendaFisica);
+
+    async function carregarProdutosBase() {
+      const { data, error } = await supabaseClient
+        .from("produtos")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (!error) {
+        produtosCache = data || [];
+        popularSelectVendaFisica();
+        renderizarItensVendaFisica();
+        if (abaAtiva === "produtos") {
+          renderizarProdutosAdmin();
+        }
+      }
+    }
+
+    formVendaFisica?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!msgVendaFisica || !btnRegistrarVendaFisica) return;
+
+      if (itensVendaFisica.length === 0) {
+        msgVendaFisica.style.color = "#b91c1c";
+        msgVendaFisica.textContent = "Adicione pelo menos 1 item antes de registrar a venda.";
+        return;
+      }
+
+      for (const item of itensVendaFisica) {
+        const prodAtual = produtosCache.find((p) => String(p.id) === String(item.id));
+        const estoque = prodAtual ? Number(prodAtual.quantidade) || 0 : 0;
+        if (estoque < item.qtd) {
+          msgVendaFisica.style.color = "#b91c1c";
+          msgVendaFisica.textContent = `Estoque insuficiente para ${item.nome} (${estoque} un. disponíveis).`;
+          return;
+        }
+      }
+
+      const pagamento = vendaFisicaPagamento?.value || "Pix na loja";
+      const nomeCliente = (vendaFisicaCliente?.value || "").trim() || "Cliente balcão";
+      const totalVenda = obterTotalVendaFisicaAtual();
+
+      let detalhePagamento = `Venda física — ${pagamento}`;
+      let valorTrocoSalvar = null;
+
+      if (pagamento === "Dinheiro na loja") {
+        const recebido = Number(vendaFisicaValorRecebido?.value);
+        if (Number.isNaN(recebido) || recebido < totalVenda) {
+          msgVendaFisica.style.color = "#b91c1c";
+          msgVendaFisica.textContent = `Valor recebido menor que o total (${formatarPreco(totalVenda)}).`;
+          return;
+        }
+        const trocoCalc = Number((recebido - totalVenda).toFixed(2));
+        valorTrocoSalvar = formatarPreco(trocoCalc);
+        detalhePagamento = `Venda física — Dinheiro na loja (Recebido: ${formatarPreco(recebido)} | Troco: ${valorTrocoSalvar})`;
+      }
+
+      let criadoEmIso = new Date().toISOString();
+      if (vendaFisicaData?.value) {
+        const dataEscolhida = new Date(vendaFisicaData.value);
+        if (!Number.isNaN(dataEscolhida.getTime())) {
+          criadoEmIso = dataEscolhida.toISOString();
+        }
+      }
+
+      btnRegistrarVendaFisica.disabled = true;
+      msgVendaFisica.style.color = "#475569";
+      msgVendaFisica.textContent = "Registrando na tabela vendas...";
+
+      const { data: sessaoData } = await supabaseClient.auth.getSession();
+      const adminUserId = sessaoData?.session?.user?.id || null;
+
+      const vendaPayload = {
+        user_id: adminUserId,
+        cliente_nome: nomeCliente,
+        forma_pagamento: pagamento,
+        detalhe_pagamento: detalhePagamento,
+        troco: valorTrocoSalvar,
+        observacao: "Venda física registrada no painel admin",
+        itens: itensVendaFisica.map((i) => ({
+          id: i.id,
+          nome: i.nome,
+          preco: Number(i.preco) || 0,
+          qtd: Number(i.qtd) || 1
+        })),
+        total: totalVenda,
+        status: "pago",
+        criado_em: criadoEmIso
+      };
+
+      const { error } = await supabaseClient.from("vendas").insert([vendaPayload]);
+      btnRegistrarVendaFisica.disabled = false;
+
+      if (error) {
+        msgVendaFisica.style.color = "#b91c1c";
+        msgVendaFisica.textContent = `Erro ao registrar na tabela vendas: ${error.message}`;
+        return;
+      }
+
+      const qtdItensRegistrados = itensVendaFisica.length;
+      itensVendaFisica = [];
+      if (vendaFisicaQtd) vendaFisicaQtd.value = "1";
+      if (vendaFisicaCliente) vendaFisicaCliente.value = "";
+      if (vendaFisicaValorRecebido) vendaFisicaValorRecebido.value = "";
+      preencherDataHoraPadraoVenda();
+      renderizarItensVendaFisica();
+
+      msgVendaFisica.style.color = "#15803d";
+      msgVendaFisica.textContent = `Venda (${qtdItensRegistrados} ${qtdItensRegistrados === 1 ? "item" : "itens"} — ${formatarPreco(totalVenda)}) salva apenas na tabela vendas!`;
+
+      await carregarProdutosBase();
+    });
+
+    // ==========================================
+    // RESUMO (pedidos + vendas), CSV E PEDIDOS (pedidos)
+    // ==========================================
+    function registroEstaNoPeriodo(registro, periodo) {
+      if (periodo === "todos") return true;
+      if (!registro?.criado_em) return false;
+
+      const dataReg = new Date(registro.criado_em);
+      if (Number.isNaN(dataReg.getTime())) return false;
+
+      const agora = new Date();
+
+      if (periodo === "hoje") {
+        return (
+          dataReg.getFullYear() === agora.getFullYear() &&
+          dataReg.getMonth() === agora.getMonth() &&
+          dataReg.getDate() === agora.getDate()
+        );
+      }
+
+      if (periodo === "mes_atual") {
+        return (
+          dataReg.getFullYear() === agora.getFullYear() &&
+          dataReg.getMonth() === agora.getMonth()
+        );
+      }
+
+      return true;
+    }
+
+    function rotuloPeriodo(periodo) {
+      if (periodo === "hoje") return "hoje";
+      if (periodo === "mes_atual") return "no mês atual";
+      return "no total";
+    }
+
+    function obterTodosRegistrosCombinados() {
+      const online = (pedidosCache || []).map((p) => ({
+        ...p,
+        _canal: "online"
+      }));
+      const fisicas = (vendasCache || []).map((v) => ({
+        ...v,
+        _canal: "venda"
+      }));
+
+      return [...online, ...fisicas].sort((a, b) => {
+        const ta = new Date(a.criado_em || 0).getTime() || 0;
+        const tb = new Date(b.criado_em || 0).getTime() || 0;
+        return tb - ta;
+      });
+    }
+
+    function obterPedidosFiltrados() {
+      const termo = (filtroBuscaPedido.value || "").trim().toLowerCase();
+      const statusFiltro = filtroStatusPedido.value || "";
+
+      return pedidosCache.filter((p) => {
+        const okStatus = !statusFiltro || p.status === statusFiltro;
+        const textoAlvo = `${p.id} ${p.cliente_nome || ""} ${p.endereco || ""} ${p.tipo_entrega || ""}`.toLowerCase();
+        const okBusca = !termo || textoAlvo.includes(termo);
+        return okStatus && okBusca;
+      });
+    }
+
+    function renderizarListaDetalhadaResumo(confirmados) {
+      if (!listaDetalhadaResumo) return;
+
+      if (!confirmados || confirmados.length === 0) {
+        listaDetalhadaResumo.innerHTML = `<p style="color: #64748b; font-size: 13px; margin: 0;">Nenhuma venda confirmada neste período.</p>`;
+        return;
+      }
+
+      listaDetalhadaResumo.innerHTML = confirmados
+        .map((item) => {
+          const ehVenda = item._canal === "venda";
+          const itens = Array.isArray(item.itens) ? item.itens : [];
+          const itensHtml = itens
+            .map((i) => `<div>${Number(i.qtd) || 1}x ${escaparHtml(i.nome)} — ${formatarPreco((Number(i.preco) || 0) * (Number(i.qtd) || 1))}</div>`)
+            .join("");
+
+          const dataFormatada = item.criado_em
+            ? new Date(item.criado_em).toLocaleString("pt-BR")
+            : "";
+
+          const titulo = ehVenda
+            ? `Venda #${escaparHtml(item.id)} • ${escaparHtml(item.cliente_nome || "Cliente balcão")}`
+            : `Pedido #${escaparHtml(item.id)} • ${escaparHtml(item.cliente_nome || "Não informado")}`;
+
+          const badgeHtml = ehVenda
+            ? `<span class="badge-canal-fisica">Tabela vendas</span>`
+            : `<span class="badge-canal-online">Tabela pedidos</span>`;
+
+          return `
+            <div class="item-resumo-detalhe">
+              <div class="item-resumo-topo">
+                <span class="item-resumo-titulo">${titulo}</span>
+                <div class="item-resumo-direita">
+                  ${badgeHtml}
+                  <span class="badge-status ${item.status === "entregue" ? "entregue" : ""}">${escaparHtml(rotuloStatus(item.status))}</span>
+                  <span class="item-resumo-valor">${formatarPreco(item.total)}</span>
+                </div>
+              </div>
+              <div class="item-resumo-meta">
+                Data: ${escaparHtml(dataFormatada)} • Pagamento: ${escaparHtml(item.detalhe_pagamento || item.forma_pagamento || "Não informado")}
+              </div>
+              <div class="item-resumo-itens">
+                ${itensHtml || "Sem itens listados"}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function atualizarResumoVendas() {
+      const periodo = filtroPeriodoResumo?.value || "mes_atual";
+      const combinadosPeriodo = obterTodosRegistrosCombinados().filter((r) =>
+        registroEstaNoPeriodo(r, periodo)
+      );
+
+      const statusConfirmados = new Set(["pago", "separando", "entregue"]);
+      const confirmados = combinadosPeriodo.filter((r) => statusConfirmados.has(r.status));
+      const entregues = combinadosPeriodo.filter((r) => r.status === "entregue");
+
+      const vendasFisicas = confirmados.filter((r) => r._canal === "venda");
+      const pedidosOnline = confirmados.filter((r) => r._canal === "online");
+
+      const somaTotal = confirmados.reduce((acc, r) => acc + (Number(r.total) || 0), 0);
+      const somaOnline = pedidosOnline.reduce((acc, r) => acc + (Number(r.total) || 0), 0);
+      const somaFisica = vendasFisicas.reduce((acc, r) => acc + (Number(r.total) || 0), 0);
+
+      const sufixo = rotuloPeriodo(periodo);
+
+      resumoTotalVendas.textContent = formatarPreco(somaTotal);
+      resumoDetalheVendas.textContent =
+        confirmados.length === 1
+          ? `1 venda confirmada (${sufixo})`
+          : `${confirmados.length} vendas confirmadas (${sufixo})`;
+
+      resumoQtdPagosEntregues.textContent = String(confirmados.length);
+      resumoQtdEntregues.textContent =
+        entregues.length === 1 ? `1 entregue (${sufixo})` : `${entregues.length} entregues (${sufixo})`;
+
+      resumoTotalOnline.textContent = formatarPreco(somaOnline);
+      resumoQtdOnline.textContent =
+        pedidosOnline.length === 1 ? `1 pedido (${sufixo})` : `${pedidosOnline.length} pedidos (${sufixo})`;
+
+      resumoTotalFisica.textContent = formatarPreco(somaFisica);
+      resumoQtdFisica.textContent =
+        vendasFisicas.length === 1 ? `1 venda (${sufixo})` : `${vendasFisicas.length} vendas (${sufixo})`;
+
+      renderizarListaDetalhadaResumo(confirmados);
+    }
+
+    function escaparCampoCsv(valor) {
+      const texto = String(valor ?? "").replaceAll('"', '""');
+      return `"${texto}"`;
+    }
+
+    function exportarPedidosCsv() {
+      const periodo = filtroPeriodoResumo?.value || "todos";
+      const filtrados = obterTodosRegistrosCombinados().filter((r) =>
+        registroEstaNoPeriodo(r, periodo)
+      );
+
+      if (filtrados.length === 0) {
+        alert("Não há registros no período selecionado para exportar.");
+        return;
+      }
+
+      const cabecalho = [
+        "Origem",
+        "ID",
+        "Data",
+        "Cliente",
+        "Status",
+        "Pagamento",
+        "Itens",
+        "Total (R$)",
+        "Observacao"
+      ];
+
+      const linhas = filtrados.map((r) => {
+        const itens = Array.isArray(r.itens) ? r.itens : [];
+        const resumoItens = itens
+          .map((i) => `${Number(i.qtd) || 1}x ${i.nome || "Item"}`)
+          .join(" | ");
+        const dataFormatada = r.criado_em
+          ? new Date(r.criado_em).toLocaleString("pt-BR")
+          : "";
+        const totalFormatado = (Number(r.total) || 0).toFixed(2).replace(".", ",");
+
+        return [
+          r._canal === "venda" ? "Tabela vendas" : "Tabela pedidos",
+          r.id,
+          dataFormatada,
+          r.cliente_nome || "Não informado",
+          rotuloStatus(r.status),
+          r.detalhe_pagamento || r.forma_pagamento || "",
+          resumoItens,
+          totalFormatado,
+          r.observacao || ""
+        ]
+          .map(escaparCampoCsv)
+          .join(";");
+      });
+
+      const conteudoCsv = "\uFEFF" + [cabecalho.map(escaparCampoCsv).join(";"), ...linhas].join("\r\n");
+      const blob = new Blob([conteudoCsv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const dataArquivo = new Date().toISOString().slice(0, 10);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `resumo-vendas-samuka-${periodo}-${dataArquivo}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderizarPedidos() {
+      const filtrados = obterPedidosFiltrados();
+
+      if (filtrados.length === 0) {
+        listaPedidosAdmin.innerHTML = `<p style="color: #64748b; font-size: 13px;">Nenhum pedido encontrado.</p>`;
+        return;
+      }
+
+      listaPedidosAdmin.innerHTML = filtrados
+        .map((p) => {
+          const itens = Array.isArray(p.itens) ? p.itens : [];
+          const itensHtml = itens
+            .map((i) => `<div>${Number(i.qtd) || 1}x ${escaparHtml(i.nome)} — ${formatarPreco((Number(i.preco) || 0) * (Number(i.qtd) || 1))}</div>`)
+            .join("");
+
+          const dataCompra = p.criado_em
+            ? new Date(p.criado_em).toLocaleString("pt-BR")
+            : "";
+
+          const classeStatus =
+            p.status === "entregue" ? "entregue" :
+            p.status === "cancelado" ? "cancelado" : "";
+
+          const statusAtual = p.status || "pago";
+          const previsaoAtual = p.previsao_entrega || "";
+
+          return `
+            <article class="pedido-card" data-pedido-id="${escaparHtml(p.id)}">
+              <div class="pedido-topo">
+                <span class="pedido-id">Pedido #${escaparHtml(p.id)}</span>
+                <span class="badge-status ${classeStatus}">${escaparHtml(rotuloStatus(statusAtual))}</span>
+              </div>
+
+              <div class="pedido-detalhes">
+                <div><strong>Cliente:</strong> ${escaparHtml(p.cliente_nome || "Não informado")}</div>
+                <div><strong>Data:</strong> ${escaparHtml(dataCompra)}</div>
+                <div><strong>Entrega/Retirada:</strong> ${escaparHtml(p.tipo_entrega || "")}</div>
+                ${p.endereco ? `<div><strong>Endereço:</strong> ${escaparHtml(p.endereco)}</div>` : ""}
+                <div><strong>Pagamento:</strong> ${escaparHtml(p.detalhe_pagamento || p.forma_pagamento || "")}</div>
+                ${p.observacao ? `<div><strong>Obs.:</strong> ${escaparHtml(p.observacao)}</div>` : ""}
+                <div><strong>Total:</strong> <strong>${formatarPreco(p.total)}</strong></div>
+              </div>
+
+              <div class="pedido-itens">
+                ${itensHtml || "Sem itens listados"}
+              </div>
+
+              <div class="controles-atualizacao">
+                <div>
+                  <label for="status-${escaparHtml(p.id)}">Status do pedido</label>
+                  <select id="status-${escaparHtml(p.id)}" class="select-status-pedido">
+                    <option value="aguardando_pagamento" ${statusAtual === "aguardando_pagamento" ? "selected" : ""}>Aguardando pagamento</option>
+                    <option value="pago" ${statusAtual === "pago" ? "selected" : ""}>Pago</option>
+                    <option value="separando" ${statusAtual === "separando" ? "selected" : ""}>Separando pedido</option>
+                    <option value="entregue" ${statusAtual === "entregue" ? "selected" : ""}>Entregue</option>
+                    <option value="cancelado" ${statusAtual === "cancelado" ? "selected" : ""}>Cancelado</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label for="previsao-${escaparHtml(p.id)}">Data / previsão de entrega ou retirada</label>
+                  <input type="text"
+                         id="previsao-${escaparHtml(p.id)}"
+                         class="input-previsao-pedido"
+                         value="${escaparHtml(previsaoAtual)}"
+                         placeholder="Ex.: Entrega prevista até 30/11/2026">
+                </div>
+
+                <button type="button" class="btn-salvar" data-id="${escaparHtml(p.id)}">Salvar</button>
+              </div>
+
+              <div class="msg-feedback" id="msg-pedido-${escaparHtml(p.id)}"></div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    async function carregarPedidosEVendas() {
+      listaPedidosAdmin.innerHTML = `<p style="color: #64748b; font-size: 13px;">Carregando pedidos e vendas...</p>`;
+
+      const [resPedidos, resVendas] = await Promise.all([
+        supabaseClient.from("pedidos").select("*").order("criado_em", { ascending: false }),
+        supabaseClient.from("vendas").select("*").order("criado_em", { ascending: false })
+      ]);
+
+      if (resPedidos.error || resVendas.error) {
+        const detalheErro = resPedidos.error?.message || resVendas.error?.message || "Erro desconhecido";
+        listaPedidosAdmin.innerHTML = `<p style="color: #b91c1c; font-size: 13px;">Erro ao carregar pedidos ou vendas: ${escaparHtml(detalheErro)}</p>`;
+        return;
+      }
+
+      pedidosCache = resPedidos.data || [];
+      vendasCache = resVendas.data || [];
+      atualizarResumoVendas();
+      renderizarPedidos();
+    }
+
+    listaPedidosAdmin.addEventListener("click", async (e) => {
+      const btn = e.target.closest(".btn-salvar");
+      if (!btn) return;
+
+      const id = btn.dataset.id;
+      const card = btn.closest(".pedido-card");
+      const novoStatus = card?.querySelector(".select-status-pedido")?.value;
+      const novaPrevisao = card?.querySelector(".input-previsao-pedido")?.value.trim() || null;
+      const msgEl = document.getElementById(`msg-pedido-${id}`);
+
+      btn.disabled = true;
+      if (msgEl) {
+        msgEl.style.color = "#475569";
+        msgEl.textContent = "Salvando alterações...";
+      }
+
+      const { error } = await supabaseClient
+        .from("pedidos")
+        .update({
+          status: novoStatus,
+          previsao_entrega: novaPrevisao
+        })
+        .eq("id", id);
+
+      btn.disabled = false;
+
+      if (error) {
+        if (msgEl) {
+          msgEl.style.color = "#b91c1c";
+          msgEl.textContent = `Erro ao atualizar pedido: ${error.message}`;
+        }
+        return;
+      }
+
+      const idx = pedidosCache.findIndex((item) => String(item.id) === String(id));
+      if (idx !== -1) {
+        pedidosCache[idx].status = novoStatus;
+        pedidosCache[idx].previsao_entrega = novaPrevisao;
+      }
+
+      atualizarResumoVendas();
+      renderizarPedidos();
+      await carregarProdutosBase();
+      const novoMsgEl = document.getElementById(`msg-pedido-${id}`);
+      if (novoMsgEl) {
+        novoMsgEl.style.color = "#15803d";
+        novoMsgEl.textContent = "Atualizado!";
+      }
+    });
+
+    // ==========================================
+    // PRODUTOS (CADASTRAR / EDITAR / EXCLUIR)
+    // ==========================================
+    function renderizarProdutosAdmin() {
+      const termo = (filtroBuscaProduto.value || "").trim().toLowerCase();
+      const filtrados = produtosCache.filter((p) => {
+        if (!termo) return true;
+        return `${p.nome || ""} ${p.categoria || ""} ${p.id || ""}`.toLowerCase().includes(termo);
+      });
+
+      if (filtrados.length === 0) {
+        listaProdutosAdmin.innerHTML = `<p style="color: #64748b; font-size: 13px;">Nenhum produto encontrado.</p>`;
+        return;
+      }
+
+      listaProdutosAdmin.innerHTML = filtrados
+        .map((p) => {
+          const img = escaparHtml(p.imagem_url || "https://via.placeholder.com/120x120?text=Sem+Foto");
+          const precoNum = Number(p.preco) || 0;
+          const qtdNum = Number(p.quantidade) || 0;
+
+          return `
+            <article class="produto-admin-card" data-produto-id="${escaparHtml(p.id)}">
+              <div class="produto-topo">
+                <img src="${img}" alt="${escaparHtml(p.nome)}" loading="lazy">
+                <div>
+                  <div style="font-size: 11px; font-weight: 700; color: #2563eb; text-transform: uppercase;">
+                    #${escaparHtml(p.id)} • ${escaparHtml(p.categoria || "Geral")}
+                  </div>
+                  <div style="font-size: 14px; font-weight: 700; color: #0f172a;">
+                    ${escaparHtml(p.nome)}
+                  </div>
+                </div>
+              </div>
+
+              <div class="produto-editar-grid">
+                <div>
+                  <label for="preco-prod-${escaparHtml(p.id)}">Preço (R$)</label>
+                  <input type="number"
+                         id="preco-prod-${escaparHtml(p.id)}"
+                         class="input-preco-produto"
+                         step="0.01"
+                         min="0"
+                         value="${precoNum.toFixed(2)}">
+                </div>
+                <div>
+                  <label for="qtd-prod-${escaparHtml(p.id)}">Quantidade em estoque</label>
+                  <input type="number"
+                         id="qtd-prod-${escaparHtml(p.id)}"
+                         class="input-qtd-produto"
+                         step="1"
+                         min="0"
+                         value="${qtdNum}">
+                </div>
+              </div>
+
+              <div class="acoes-produto">
+                <button type="button" class="btn-salvar btn-salvar-produto" data-id="${escaparHtml(p.id)}">
+                  Salvar preço/estoque
+                </button>
+                <button type="button" class="btn-excluir btn-excluir-produto" data-id="${escaparHtml(p.id)}">
+                  Excluir
+                </button>
+              </div>
+
+              <div class="msg-feedback" id="msg-prod-${escaparHtml(p.id)}"></div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    async function carregarProdutosAdmin() {
+      listaProdutosAdmin.innerHTML = `<p style="color: #64748b; font-size: 13px;">Carregando produtos...</p>`;
+      await carregarProdutosBase();
+      renderizarProdutosAdmin();
+    }
+
+    formNovoProduto.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msgNovoProduto.style.color = "#475569";
+      msgNovoProduto.textContent = "Cadastrando produto...";
+      btnSalvarNovoProduto.disabled = true;
+
+      const payload = {
+        nome: novoProdNome.value.trim(),
+        categoria: novoProdCategoria.value.trim() || "Geral",
+        preco: Number(novoProdPreco.value) || 0,
+        quantidade: Math.max(0, parseInt(novoProdQtd.value, 10) || 0),
+        imagem_url: novoProdImagem.value.trim() || null
+      };
+
+      const { error } = await supabaseClient.from("produtos").insert([payload]);
+      btnSalvarNovoProduto.disabled = false;
+
+      if (error) {
+        msgNovoProduto.style.color = "#b91c1c";
+        msgNovoProduto.textContent = `Erro ao cadastrar produto: ${error.message}`;
+        return;
+      }
+
+      formNovoProduto.reset();
+      msgNovoProduto.style.color = "#15803d";
+      msgNovoProduto.textContent = "Produto cadastrado com sucesso!";
+      carregarProdutosAdmin();
+    });
+
+    listaProdutosAdmin.addEventListener("click", async (e) => {
+      const btnSalvar = e.target.closest(".btn-salvar-produto");
+      if (btnSalvar) {
+        const id = btnSalvar.dataset.id;
+        const card = btnSalvar.closest(".produto-admin-card");
+        const novoPreco = Number(card?.querySelector(".input-preco-produto")?.value);
+        const novaQtd = Math.max(0, parseInt(card?.querySelector(".input-qtd-produto")?.value, 10) || 0);
+        const msgEl = document.getElementById(`msg-prod-${id}`);
+
+        if (Number.isNaN(novoPreco) || novoPreco < 0) {
+          if (msgEl) {
+            msgEl.style.color = "#b91c1c";
+            msgEl.textContent = "Informe um preço válido.";
+          }
+          return;
+        }
+
+        btnSalvar.disabled = true;
+        if (msgEl) {
+          msgEl.style.color = "#475569";
+          msgEl.textContent = "Salvando...";
+        }
+
+        const { error } = await supabaseClient
+          .from("produtos")
+          .update({
+            preco: Number(novoPreco.toFixed(2)),
+            quantidade: novaQtd
+          })
+          .eq("id", id);
+
+        btnSalvar.disabled = false;
+
+        if (error) {
+          if (msgEl) {
+            msgEl.style.color = "#b91c1c";
+            msgEl.textContent = `Erro ao atualizar produto: ${error.message}`;
+          }
+          return;
+        }
+
+        const idx = produtosCache.findIndex((item) => String(item.id) === String(id));
+        if (idx !== -1) {
+          produtosCache[idx].preco = Number(novoPreco.toFixed(2));
+          produtosCache[idx].quantidade = novaQtd;
+        }
+
+        popularSelectVendaFisica();
+        if (msgEl) {
+          msgEl.style.color = "#15803d";
+          msgEl.textContent = "Preço e estoque atualizados!";
+        }
+        return;
+      }
+
+      const btnExcluir = e.target.closest(".btn-excluir-produto");
+      if (btnExcluir) {
+        const id = btnExcluir.dataset.id;
+        const msgEl = document.getElementById(`msg-prod-${id}`);
+        if (!confirm("Tem certeza que deseja excluir este produto?")) return;
+
+        btnExcluir.disabled = true;
+        if (msgEl) {
+          msgEl.style.color = "#475569";
+          msgEl.textContent = "Excluindo...";
+        }
+
+        const { error } = await supabaseClient
+          .from("produtos")
+          .delete()
+          .eq("id", id);
+
+        if (error) {
+          btnExcluir.disabled = false;
+          if (msgEl) {
+            msgEl.style.color = "#b91c1c";
+            msgEl.textContent = `Não foi possível excluir o produto: ${error.message}`;
+          }
+          return;
+        }
+
+        produtosCache = produtosCache.filter((item) => String(item.id) !== String(id));
+        itensVendaFisica = itensVendaFisica.filter((item) => String(item.id) !== String(id));
+        popularSelectVendaFisica();
+        renderizarItensVendaFisica();
+        renderizarProdutosAdmin();
+      }
+    });
+
+    // ==========================================
+    // AUTH E NAVEGAÇÃO
+    // ==========================================
+    formLoginAdmin.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      adminLoginMsg.textContent = "";
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: adminEmail.value.trim(),
+        password: adminSenha.value
+      });
+
+      if (error) {
+        adminLoginMsg.textContent = "E-mail ou senha inválidos.";
+      }
+    });
+
+    btnSairAdmin.addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+    });
+
+    btnAtualizarLista.addEventListener("click", () => {
+      if (abaAtiva === "pedidos" || abaAtiva === "resumo") {
+        carregarPedidosEVendas();
+      } else if (abaAtiva === "venda") {
+        carregarProdutosBase();
+      } else {
+        carregarProdutosAdmin();
+      }
+    });
+
+    abaPedidos.addEventListener("click", () => alternarAba("pedidos"));
+    abaRegistrarVenda.addEventListener("click", () => alternarAba("venda"));
+    abaResumo.addEventListener("click", () => alternarAba("resumo"));
+    abaProdutos.addEventListener("click", () => alternarAba("produtos"));
+
+    filtroPeriodoResumo.addEventListener("change", atualizarResumoVendas);
+    filtroBuscaPedido.addEventListener("input", renderizarPedidos);
+    filtroStatusPedido.addEventListener("change", renderizarPedidos);
+    btnExportarCsv.addEventListener("click", exportarPedidosCsv);
+    filtroBuscaProduto.addEventListener("input", renderizarProdutosAdmin);
+
+    function alternarEstadoTela(logado) {
+      secaoLoginAdmin.style.display = logado ? "none" : "block";
+      secaoPainelLogado.style.display = logado ? "block" : "none";
+      btnAtualizarLista.style.display = logado ? "inline-block" : "none";
+      btnSairAdmin.style.display = logado ? "inline-block" : "none";
+
+      if (logado) {
+        preencherDataHoraPadraoVenda();
+        alternarAba(abaAtiva);
+      }
+    }
+
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      alternarEstadoTela(Boolean(session?.user));
+    });
+
+    supabaseClient.auth.getSession().then(({ data }) => {
+      alternarEstadoTela(Boolean(data?.session?.user));
+    });
+  </script>
+</body>
+</html>
